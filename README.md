@@ -38,7 +38,11 @@ public/catalog.json     딜 목록 (1만원 이하만)
 public/price-history.json  날짜별 가격 기록 → "역대 최저가" 표시
 links.json              발급받은 쉐어링크 캐시 (⚠️ publisherId 포함, 공개 금지)
 .env                    TOSS_ACCESS_KEY / TOSS_SECRET_KEY / TOSS_PUBLISHER_ID
+sync.log                배치 실행 기록
 ```
+
+`toss-sync.cjs` / `links.json` / `.env` / `sync.log`는 `.gitignore`에 있습니다.
+공개 저장소에는 `index.html`과 딜 데이터만 올라갑니다 (최저가픽과 같은 방식).
 
 데이터가 `public/`에 있는 이유: `vite build` / `ait build`가 `public/` 내용을 번들 루트로 올려주기 때문에,
 빌드 산출물에서도 `catalog.json`이 같은 상대경로로 잡힙니다.
@@ -77,7 +81,7 @@ links.json              발급받은 쉐어링크 캐시 (⚠️ publisherId 포
 ### 미리보기 (Node 없이)
 
 ```bash
-cd ~/Desktop/만원의\ 특가 && python3 -m http.server 4335
+cd ~/Desktop/토스/manwon-teukga && python3 -m http.server 4335
 ```
 
 → http://localhost:4335/index.html
@@ -85,18 +89,41 @@ cd ~/Desktop/만원의\ 특가 && python3 -m http.server 4335
 ### 개발 서버 (Node 설치 후)
 
 ```bash
-cd ~/Desktop/만원의\ 특가 && npm install && npm run dev
+cd ~/Desktop/토스/manwon-teukga && npm install && npm run dev
 ```
 
 ### 딜 동기화
 
 ```bash
-cd ~/Desktop/만원의\ 특가 && npm run sync
+cd ~/Desktop/토스/manwon-teukga && npm run sync
 ```
 
 하루특가 + 베스트 + **1차 카테고리 베스트 전체**를 받아 1만원 이하만 남기고,
 쉐어링크(추적 링크)를 발급해 `public/catalog.json`에 저장합니다.
 이 링크로 들어온 구매만 제휴 수익으로 집계됩니다.
+
+동기화가 끝나면 `public/catalog.json`·`public/price-history.json`을 GitHub Pages로 커밋·푸시합니다.
+앱은 배포 환경에서 이 주소를 먼저 읽으므로 **앱을 다시 배포하지 않아도 딜이 갱신됩니다.**
+
+```
+https://pnu10.github.io/manwon-teukga/public/catalog.json
+```
+
+로컬(localhost·file://)에서는 원격을 건너뛰고 방금 동기화한 `public/` 파일을 봅니다(`index.html`의 `IS_LOCAL`).
+
+### 자동 동기화 (배치)
+
+`~/Library/LaunchAgents/com.manwonteukga.tosssync.plist` — 매일 **7:30 / 18:30**에 위 동기화를 돌립니다.
+최저가픽(7:00·18:00)과 30분 띄운 이유는 토스 Open API 일일 한도를 나눠 쓰기 때문입니다.
+
+```bash
+launchctl load ~/Library/LaunchAgents/com.manwonteukga.tosssync.plist    # 등록
+launchctl unload ~/Library/LaunchAgents/com.manwonteukga.tosssync.plist  # 해제
+launchctl start com.manwonteukga.tosssync                                # 즉시 한 번 실행
+tail -f sync.log                                                          # 실행 기록
+```
+
+⚠️ 배치가 절대경로를 물고 있어서 **폴더를 옮기거나 이름을 바꾸면 plist도 같이 고쳐야** 합니다.
 
 자주 쓰는 옵션:
 
@@ -106,7 +133,25 @@ node toss-sync.cjs --max-price 5000   # 5천원 이하만
 node toss-sync.cjs --no-categories    # 카테고리 훑기 생략(빠름)
 node toss-sync.cjs --min-dc 30        # 할인율 30% 이상만
 node toss-sync.cjs --limit 400        # 카탈로그 최대 건수(기본 250)
+node toss-sync.cjs --no-push          # GitHub Pages 푸시 생략(로컬만 갱신)
+node toss-sync.cjs --force            # 건수 급감 안전장치를 무시하고 덮어쓰기
 ```
+
+### 잘못된 데이터가 올라가지 않게 막는 것
+
+동기화는 **실패하면 기존 `catalog.json`을 건드리지 않는 쪽**으로만 끝납니다.
+
+| 상황 | 동작 |
+|---|---|
+| API 오류 · 일일 한도 소진 | 예외로 중단, 기존 파일 유지 |
+| 딜 0건 | 저장하지 않고 종료 |
+| 쉐어링크 0건 발급 | 중단 (추적 안 되는 링크는 수익이 집계되지 않는다) |
+| **건수 급감** | 새 카탈로그가 기존의 **60% 미만**이면 저장 중단 (`shrinkGuard`) |
+
+건수 급감 검사가 필요한 이유: 카테고리 조회는 하나씩 실패해도 넘어가는데(부분 실패는 정상),
+한도가 카테고리를 훑는 도중 소진되면 16개가 통째로 실패해 하루특가+베스트만 남은
+반토막 카탈로그가 만들어집니다. 그대로 저장하면 앱의 딜이 절반으로 줄어듭니다.
+기존이 50건 미만일 때(초기 구축)는 검사하지 않습니다.
 
 ### 앱인토스 배포
 
@@ -123,5 +168,5 @@ npm run build && npm run deploy
 - `.env`, `links.json`은 `.gitignore`에 있습니다. 절대 공개 저장소에 올리지 마세요.
 - 토스쇼핑 Open API는 **출발지 IP 등록**이 필요합니다. 네트워크가 바뀌면 어드민에서 IP를 다시 등록하세요.
   (`curl https://api.ipify.org`로 현재 공인 IP 확인)
-- 재배포 없이 딜만 갱신하고 싶으면 `index.html`의 `CATALOG_URL`에 정적 호스팅 주소를 넣으세요.
-  (최저가픽은 GitHub Pages를 쓰고 있습니다)
+- 딜 갱신은 배치가 GitHub Pages로 푸시하는 것으로 끝납니다. 앱 재배포(`npm run deploy`)는
+  `index.html` 자체를 고쳤을 때만 필요합니다.
