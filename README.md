@@ -182,9 +182,14 @@ node toss-sync.cjs --force            # 건수 급감 안전장치를 무시하�
 npm run build && npm run deploy
 ```
 
-⚠️ 배포 전에 앱인토스 콘솔에 **"만원의 특가"를 새 앱으로 등록**하고,
-발급된 앱 식별자를 `apps-in-toss.config.ts`의 `appName`에 넣어야 합니다.
-지금 값은 `manwon-teukga` (임시)이고, 최저가픽의 `lowest-pick`과 겹치면 안 됩니다.
+앱 식별자는 `manwon-teukga`로 콘솔에 등록돼 있습니다(`apps-in-toss.config.ts`의 `appName`).
+배포가 끝나면 `intoss-private://manwon-teukga?_deploymentId=...` 링크가 나옵니다 —
+토스 앱에서 열면 심사 전에 실기기로 확인할 수 있습니다.
+
+**딜만 갱신할 때는 재배포하지 마세요.** 배치가 GitHub Pages로 푸시하면 앱이 알아서 새 딜을 읽습니다.
+재배포가 필요한 건 `index.html`을 고쳤을 때뿐입니다.
+
+최초 배포: 2026-08-14 (deploymentId `01a00214-4fa6-7015-8308-698822d4c47c`)
 
 ## 주의
 
