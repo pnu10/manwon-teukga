@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#F4F6F5" id="themeColor">
+<script>
+// 테마는 첫 페인트 전에 정해야 화면이 번쩍이지 않는다(라이트 → 다크 깜빡임 방지).
+// 기본은 라이트. 저장된 값이 "dark"일 때만 뒤집는다(기기 설정은 따르지 않음).
+try{if(localStorage.getItem("manwon_theme")==="dark")document.documentElement.dataset.theme="dark";}catch(e){}
+</script>
+<!-- 토스 앱 내비게이션 바에 이 제목이 그대로 뜬다(navigationBar.withTitle) — 부제까지 넣으면 잘린다 -->
+<title>만원의 특가</title>
+<meta name="description" content="만원 한 장으로 뭐 사지? 토스쇼핑 1만원 이하 특가만 모아서 보여드려요."/>
+<meta property="og:title" content="만원의 특가 — 만원 한 장으로 뭐 사지?"/>
+<meta property="og:description" content="토스쇼핑 1만원 이하 특가만 모았어요. 매일 갱신."/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+/* ═══════════ 테마 토큰 ═══════════
+   기본은 라이트. 헤더 토글이 <html data-theme="dark">를 붙이면 다크로 뒤집힌다.
+   색은 전부 여기서만 정의하고, 아래 규칙들은 변수만 쓴다(하드코딩 금지). */
+:root{
+  --bg:#F4F6F5;
+  --card:#FFFFFF;
+  --card2:#EDF1EF;          /* 이미지 자리/보조 면 */
+  --ink:#12161A;
+  --ink2:#525C66;
+  --ink3:#8D97A0;
+  --line:#E4E9E6;
+
+  --neon:#00A85F;           /* 채움(버튼·뱃지) */
+  --neon-text:#00874C;      /* 밝은 배경 위 작은 글씨 */
+  --neon-soft:rgba(0,168,95,.10);
+  --on-accent:#FFFFFF;      /* neon 채움 위 글자 */
+
+  --gold:#FFC53D;           /* 채움 */
+  --gold-text:#A97400;      /* 밝은 배경 위 글씨 */
+  --gold-soft:rgba(255,197,61,.16);
+  --gold-line:rgba(169,116,0,.28);
+  --on-gold:#1A1200;
+
+  --red:#E5484D;
+  --red-line:rgba(229,72,77,.4);
+
+  --glass:rgba(244,246,245,.85);      /* 헤더 */
+  --nav-bg:rgba(255,255,255,.95);
+  --overlay:rgba(255,255,255,.88);    /* 이미지 위 뱃지 */
+  --overlay-ink:var(--ink);
+  --overlay-line:rgba(18,22,26,.08);
+  --dim-bg:rgba(22,26,30,.42);
+  --toast-bg:#12161A;
+  --toast-ink:#FFFFFF;
+  --chip-on-ink:#FFFFFF;
+
+  --note-bg:
+    radial-gradient(120% 140% at 88% 6%,rgba(0,168,95,.20),transparent 55%),
+    radial-gradient(90% 120% at 6% 96%,rgba(255,197,61,.20),transparent 55%),
+    linear-gradient(150deg,#E9F7F0,#F5FAF7 62%,#FFFFFF);
+  --note-line:rgba(0,168,95,.22);
+  --note-guilloche:rgba(0,168,95,.10);
+  --note-ghost:rgba(0,168,95,.10);
+  --rush-bg:linear-gradient(160deg,#FFFFFF,#F7FAF8);
+  --panel-bg:linear-gradient(150deg,#FFFFFF,#F6F9F7);
+  --cart-bg:
+    radial-gradient(110% 130% at 85% 8%,rgba(0,168,95,.20),transparent 58%),
+    linear-gradient(150deg,#E9F7F0,#FFFFFF);
+  --cart-bg-over:
+    radial-gradient(110% 130% at 85% 8%,rgba(229,72,77,.18),transparent 58%),
+    linear-gradient(150deg,#FDECEC,#FFFFFF);
+  --track:rgba(18,22,26,.08);
+
+  --shadow:0 2px 12px rgba(18,22,26,.06);
+  --shadow-lg:0 12px 30px rgba(18,22,26,.14);
+  --glow:0 8px 22px rgba(0,168,95,.22);
+
+  --r-lg:22px;
+  --r-md:16px;
+  --r-sm:11px;
+}
+:root[data-theme="dark"]{
+  --bg:#101314;
+  --card:#1A1E23;
+  --card2:#232930;
+  --ink:#F2F5F4;
+  --ink2:#A3ACB3;
+  --ink3:#6B747C;
+  --line:#2A3037;
+
+  --neon:#00E07A;
+  --neon-text:#00E07A;
+  --neon-soft:rgba(0,224,122,.13);
+  --on-accent:#05130C;
+
+  --gold:#FFC53D;
+  --gold-text:#FFC53D;
+  --gold-soft:rgba(255,197,61,.13);
+  --gold-line:rgba(255,197,61,.26);
+  --on-gold:#1A1200;
+
+  --red:#FF5A5F;
+  --red-line:rgba(255,90,95,.5);
+
+  --glass:rgba(16,19,20,.82);
+  --nav-bg:rgba(10,12,13,.94);
+  --overlay:rgba(10,12,13,.82);
+  --overlay-ink:var(--ink);
+  --overlay-line:rgba(255,255,255,.12);
+  --dim-bg:rgba(5,7,8,.72);
+  --toast-bg:#F2F5F4;
+  --toast-ink:#101314;
+  --chip-on-ink:#101314;
+
+  --note-bg:
+    radial-gradient(120% 140% at 88% 6%,rgba(0,224,122,.22),transparent 55%),
+    radial-gradient(90% 120% at 6% 96%,rgba(255,197,61,.14),transparent 55%),
+    linear-gradient(150deg,#16332A,#101A18 62%,#101314);
+  --note-line:rgba(0,224,122,.2);
+  --note-guilloche:rgba(0,224,122,.08);
+  --note-ghost:rgba(0,224,122,.055);
+  --rush-bg:linear-gradient(160deg,#20272B,#171B1F);
+  --panel-bg:linear-gradient(150deg,#1C2429,#12171A);
+  --cart-bg:
+    radial-gradient(110% 130% at 85% 8%,rgba(0,224,122,.24),transparent 58%),
+    linear-gradient(150deg,#16332A,#101A18);
+  --cart-bg-over:
+    radial-gradient(110% 130% at 85% 8%,rgba(255,90,95,.24),transparent 58%),
+    linear-gradient(150deg,#331A1B,#1A1112);
+  --track:rgba(255,255,255,.09);
+
+  --shadow:none;
+  --shadow-lg:0 14px 34px rgba(0,0,0,.5);
+  --glow:0 10px 26px rgba(0,224,122,.22);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+html{background:var(--bg)}
+body{
+  font-family:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+  background:var(--bg);color:var(--ink);
+  max-width:480px;margin:0 auto;
+  padding-bottom:calc(150px + env(safe-area-inset-bottom));
+  letter-spacing:-.018em;
+  overscroll-behavior-y:none;
+}
+button{font-family:inherit;border:0;background:none;cursor:pointer;letter-spacing:inherit;color:inherit}
+.num{font-variant-numeric:tabular-nums;letter-spacing:-.03em}
+
+/* ───── header ───── */
+.hdr{
+  position:sticky;top:0;z-index:50;
+  background:var(--glass);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  padding:14px 20px 11px;
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  border-bottom:1px solid var(--line);
+}
+.logo{display:flex;align-items:center;gap:9px;font-size:19px;font-weight:800}
+.logo .mark{
+  width:30px;height:30px;border-radius:9px;
+  background:linear-gradient(140deg,var(--neon),#00874C);
+  display:grid;place-items:center;font-size:14px;
+  box-shadow:var(--glow);
+}
+.hdr-r{display:flex;align-items:center;gap:8px;flex:none}
+.hdr-cnt{
+  font-size:12px;font-weight:800;color:var(--neon-text);
+  background:var(--neon-soft);padding:6px 11px;border-radius:8px;
+  border:1px solid var(--neon-soft);
+}
+.themebtn{
+  width:33px;height:33px;border-radius:9px;flex:none;
+  background:var(--card);border:1px solid var(--line);
+  display:grid;place-items:center;font-size:15px;box-shadow:var(--shadow);
+  transition:transform .15s;
+}
+.themebtn:active{transform:scale(.92)}
+
+/* ───── search ───── */
+.searchbar{
+  display:flex;align-items:center;gap:9px;margin:14px 20px 0;
+  background:var(--card);border:1px solid var(--line);border-radius:13px;padding:12px 14px;
+  box-shadow:var(--shadow);
+}
+.searchbar .si{font-size:15px;opacity:.55;flex:none}
+.searchbar input{flex:1;border:0;background:none;font-size:15px;font-weight:500;color:var(--ink);outline:none;min-width:0}
+.searchbar input::placeholder{color:var(--ink3);font-weight:500}
+.searchbar input::-webkit-search-cancel-button{display:none}
+.qclear{flex:none;width:22px;height:22px;border-radius:50%;background:var(--card2);color:var(--ink2);font-size:11px;font-weight:800;display:grid;place-items:center}
+
+/* ───── 지폐 카드(브랜드 + 오늘 요약) ───── */
+.note{
+  position:relative;margin:14px 20px 0;border-radius:var(--r-lg);overflow:hidden;
+  background:var(--note-bg);
+  border:1px solid var(--note-line);
+  padding:18px 20px 16px;
+  box-shadow:var(--shadow);
+}
+/* 지폐 무늬(기요셰 느낌) — 얇은 사선 격자 */
+.note::before{
+  content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;
+  background-image:repeating-linear-gradient(115deg,var(--note-guilloche) 0 1px,transparent 1px 9px);
+}
+/* 지폐 액면가 워터마크 — 숫자 위에 겹치므로 아주 옅게만 */
+.note .ghost{
+  position:absolute;right:-14px;bottom:-26px;font-size:92px;font-weight:800;
+  color:var(--note-ghost);letter-spacing:-.06em;pointer-events:none;
+}
+.note .cap{position:relative;font-size:11.5px;font-weight:800;color:var(--neon-text);letter-spacing:.02em}
+.note h2{position:relative;font-size:20px;font-weight:800;line-height:1.32;margin-top:7px;word-break:keep-all}
+.note h2 em{font-style:normal;color:var(--gold-text)}
+.note .stats{position:relative;display:flex;gap:22px;margin-top:15px}
+.note .stats .st .k{font-size:10.5px;font-weight:700;color:var(--ink3);margin-bottom:4px}
+.note .stats .st .v{font-size:16px;font-weight:800;color:var(--ink)}
+.note .stats .st .v small{font-size:11px;font-weight:700;color:var(--ink2);margin-left:1px}
+
+/* ───── 섹션 ───── */
+.sec{margin-top:26px}
+.sec-hd{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 20px;margin-bottom:13px}
+.sec-hd h3{font-size:17px;font-weight:800;display:flex;align-items:center;gap:7px}
+.sec-hd .soon{
+  font-size:11.5px;font-weight:800;color:var(--gold-text);background:var(--gold-soft);
+  padding:5px 10px;border-radius:8px;border:1px solid var(--gold-line);white-space:nowrap;
+}
+
+/* ───── 하루특가 대형 카드 ───── */
+.rush-wrap{display:flex;gap:12px;overflow-x:auto;padding:2px 20px 8px;scrollbar-width:none;scroll-snap-type:x mandatory}
+.rush-wrap::-webkit-scrollbar{display:none}
+.rush{
+  min-width:228px;max-width:228px;scroll-snap-align:start;
+  background:var(--rush-bg);
+  border:1px solid var(--gold-line);border-radius:var(--r-lg);
+  padding:12px;position:relative;overflow:hidden;box-shadow:var(--shadow);
+}
+.rush.urgent{border-color:var(--red-line)}
+.rush .thumb{
+  width:100%;aspect-ratio:1.12;border-radius:13px;overflow:hidden;position:relative;
+  background:var(--card2);display:grid;place-items:center;font-size:42px;
+}
+.rush .thumb img{width:100%;height:100%;object-fit:cover}
+.rush .cd{
+  position:absolute;left:8px;bottom:8px;right:8px;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  background:var(--overlay);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  border:1px solid var(--gold-line);border-radius:10px;padding:7px 0;
+}
+.rush .cd .lb{font-size:10px;font-weight:800;color:var(--gold-text);opacity:.9}
+.rush .cd .tm{font-size:16px;font-weight:800;color:var(--gold-text)}
+.rush.urgent .cd{border-color:var(--red-line)}
+.rush.urgent .cd .lb,.rush.urgent .cd .tm{color:var(--red)}
+.rush.urgent .cd .tm{animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+.rush .dcbadge{
+  position:absolute;top:8px;left:8px;z-index:2;
+  background:var(--neon);color:var(--on-accent);font-size:12px;font-weight:800;
+  padding:3px 9px;border-radius:8px;
+}
+.rush .name{margin-top:11px;font-size:13px;font-weight:600;line-height:1.35;height:35px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;word-break:keep-all;color:var(--ink2)}
+.rush .pr{margin-top:8px;display:flex;align-items:baseline;gap:6px}
+.rush .pr .won{font-size:25px;font-weight:800;color:var(--neon-text)}
+.rush .pr .unit{font-size:13px;font-weight:800;color:var(--neon-text);opacity:.85}
+.rush .pr .orig{font-size:12px;font-weight:600;color:var(--ink3);text-decoration:line-through}
+
+/* ───── 필터 ───── */
+/* 가격대는 5칸 세그먼트 컨트롤 — 짧은 라벨(~3천/3~5천)로 줄이면 375px에서 스크롤 없이 한 줄에 들어간다.
+   가로 스크롤 알약은 뒤쪽 구간이 잘려 보여서 "더 있나?" 싶게 만든다. */
+.tiers{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;padding:16px 20px 2px}
+.tier{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  padding:9px 2px 8px;border-radius:12px;
+  background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow);
+  transition:.16s;
+}
+.tier .lb{font-size:11px;font-weight:700;color:var(--ink2);white-space:nowrap;letter-spacing:-.04em}
+.tier .n{font-size:12.5px;font-weight:800;color:var(--ink3)}
+.tier.on{
+  background:linear-gradient(145deg,var(--neon),var(--neon-text));
+  border-color:transparent;box-shadow:var(--glow);transform:translateY(-1px);
+}
+.tier.on .lb{color:var(--on-accent)}
+.tier.on .n{color:var(--on-accent);opacity:.82}
+/* 해당 가격대에 딜이 하나도 없을 때 — 눌러도 빈 화면이라 미리 죽여둔다 */
+.tier.empty{opacity:.32;pointer-events:none}
+.chips{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;padding:14px 20px 0}
+.chip{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+  min-height:56px;padding:8px 4px;border-radius:12px;font-size:11px;font-weight:600;
+  background:var(--card);color:var(--ink2);border:1px solid var(--line);
+  transition:.16s;white-space:nowrap;box-shadow:var(--shadow);
+}
+.chip .ci{font-size:18px;line-height:1}
+.chip.on{background:var(--ink);color:var(--chip-on-ink);font-weight:800;border-color:var(--ink)}
+/* 오늘 그 카테고리에 딜이 없으면 눌러도 빈 화면이라 미리 죽여둔다 */
+.chip.empty{opacity:.35;pointer-events:none}
+
+/* ───── 정렬 ───── */
+.sortrow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:16px 20px 0}
+/* 오늘 마감은 가격대와 다른 축이라 세그먼트에 섞지 않고 정렬 줄로 뺐다 */
+.todaybtn{
+  display:inline-flex;align-items:center;gap:5px;flex:none;
+  padding:7px 11px;border-radius:9px;font-size:11.5px;font-weight:800;
+  background:var(--gold-soft);color:var(--gold-text);border:1px solid var(--gold-line);
+}
+.todaybtn.on{background:var(--gold);color:var(--on-gold);border-color:var(--gold)}
+.sortrow .cnt{font-size:12px;color:var(--ink3);font-weight:600;white-space:nowrap;flex:none}
+.sortrow .cnt b{color:var(--ink)}
+.sortsel{display:flex;gap:13px;overflow-x:auto;scrollbar-width:none}
+.sortsel::-webkit-scrollbar{display:none}
+.sortsel button{font-size:12.5px;font-weight:600;color:var(--ink3);white-space:nowrap}
+.sortsel button.on{color:var(--neon-text);font-weight:800}
+
+/* ───── 그리드 ───── */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;padding:14px 20px 0}
+.deal{
+  background:var(--card);border:1px solid var(--line);border-radius:var(--r-md);
+  overflow:hidden;position:relative;box-shadow:var(--shadow);
+  animation:pop .32s cubic-bezier(.22,.9,.3,1) both;
+}
+@keyframes pop{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
+.deal.incart{border-color:var(--neon);box-shadow:0 0 0 1px var(--neon),var(--glow)}
+.deal .thumb{margin:8px 8px 0;border-radius:14px;aspect-ratio:1;background:var(--card2);display:grid;place-items:center;font-size:46px;position:relative;overflow:hidden}
+.deal .thumb img{width:100%;height:100%;object-fit:cover}
+.deal .badge{
+  position:absolute;top:8px;left:8px;
+  font-size:11px;font-weight:800;padding:3px 8px;border-radius:7px;
+  background:var(--neon);color:var(--on-accent);
+}
+.deal .badge.cheap{background:var(--gold);color:var(--on-gold)}
+.deal .tbadge{
+  position:absolute;left:8px;bottom:8px;
+  font-size:10.5px;font-weight:800;color:var(--gold-text);
+  background:var(--overlay);border:1px solid var(--gold-line);
+  padding:3px 8px;border-radius:7px;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+}
+.deal .add{
+  position:absolute;top:16px;right:16px;width:30px;height:30px;border-radius:9px;
+  background:var(--overlay);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  border:1px solid var(--overlay-line);
+  display:grid;place-items:center;font-size:16px;font-weight:800;color:var(--overlay-ink);
+  transition:transform .14s;
+}
+.deal .add.on{background:var(--neon);color:var(--on-accent);border-color:var(--neon)}
+.deal .add:active{transform:scale(1.18)}
+.deal .body{padding:11px 12px 12px}
+.deal .brand{font-size:10.5px;font-weight:700;color:var(--ink3);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.deal .name{
+  font-size:12.5px;font-weight:600;line-height:1.35;height:34px;color:var(--ink2);
+  overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;word-break:keep-all;
+}
+/* 가격 줄: 할인율·판매가·정가를 한 줄에 붙여 카드 높이를 아끼고 시선을 한 곳에 모은다 */
+.deal .pricebox{margin-top:9px;display:flex;align-items:baseline;gap:5px;flex-wrap:wrap}
+.deal .pricebox .dc{font-size:13px;font-weight:800;color:var(--gold-text)}
+.deal .pricebox .won{font-size:24px;font-weight:800;color:var(--ink)}
+.deal .pricebox .unit{font-size:12px;font-weight:800;color:var(--ink2);margin-left:-3px}
+.deal .pricebox .orig{font-size:10.5px;color:var(--ink3);text-decoration:line-through;font-weight:500}
+/* 보조 정보는 회색 문장 대신 작은 칩으로 — 별점·리뷰·최저가가 한눈에 구분된다 */
+.deal .meta{margin-top:9px;display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+.deal .meta .m{
+  font-size:10.5px;font-weight:700;color:var(--ink2);
+  background:var(--card2);padding:3px 7px;border-radius:6px;white-space:nowrap;
+}
+.deal .meta .m.low{color:var(--on-accent);background:var(--neon)}
+.deal .meta .m.save{color:var(--gold-text);background:var(--gold-soft)}
+.no-result{grid-column:1/-1;text-align:center;padding:52px 20px;color:var(--ink3);font-size:13.5px;font-weight:600;line-height:1.7}
+.no-result code{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:2px 6px;font-size:12px;color:var(--neon-text)}
+.foot-note{padding:26px 24px 10px;text-align:center;font-size:11px;color:var(--ink3);font-weight:500;line-height:1.65}
+
+/* ───── 만원 게이지 바 ───── */
+.budget{
+  position:fixed;left:0;right:0;bottom:calc(64px + env(safe-area-inset-bottom));
+  z-index:78;margin:0 auto;max-width:480px;padding:0 14px;
+  /* 숨김 상태: 하단 nav(z-index 80) 뒤로 완전히 내려가야 한다 —
+     translateY만으로는 바 높이의 일부가 nav 위로 삐져나온다 */
+  transform:translateY(200%);opacity:0;pointer-events:none;
+  transition:transform .3s cubic-bezier(.22,.9,.3,1),opacity .2s;
+}
+.budget.on{transform:none;opacity:1;pointer-events:auto}
+.budget-in{
+  background:var(--panel-bg);
+  border:1px solid var(--neon);border-radius:16px;
+  padding:12px 15px 13px;box-shadow:var(--shadow-lg);
+}
+.budget .top{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.budget .top .l{font-size:12.5px;font-weight:700;color:var(--ink2)}
+.budget .top .l b{color:var(--neon-text);font-size:18px;font-weight:800;margin-left:3px}
+.budget .top .r{font-size:11.5px;font-weight:700;color:var(--ink3)}
+.budget .bar{height:6px;border-radius:99px;background:var(--track);overflow:hidden;margin-top:10px}
+.budget .fill{height:100%;border-radius:99px;background:var(--neon);transition:width .45s cubic-bezier(.22,.9,.3,1)}
+.budget .fill.over{background:var(--red)}
+.budget .msg{margin-top:9px;font-size:11.5px;font-weight:700;color:var(--ink2);display:flex;justify-content:space-between;align-items:center;gap:8px}
+.budget .msg .go{background:var(--neon);color:var(--on-accent);font-size:11.5px;font-weight:800;padding:6px 12px;border-radius:8px;flex:none}
+
+/* ───── 장바구니 ───── */
+.cart-sum{
+  position:relative;margin:16px 20px 0;border-radius:var(--r-lg);padding:22px;overflow:hidden;
+  background:var(--cart-bg);border:1px solid var(--note-line);box-shadow:var(--shadow);
+}
+.cart-sum.over{background:var(--cart-bg-over);border-color:var(--red-line)}
+.cart-sum .cap{font-size:11.5px;font-weight:800;color:var(--neon-text);letter-spacing:.02em}
+.cart-sum.over .cap{color:var(--red)}
+.cart-sum .v{font-size:34px;font-weight:800;margin-top:7px}
+.cart-sum .sub{margin-top:7px;font-size:12.5px;font-weight:600;color:var(--ink2)}
+.cart-sum .sub b{color:var(--gold-text);font-weight:800}
+.cart-sum .bar{height:7px;border-radius:99px;background:var(--track);overflow:hidden;margin-top:15px}
+.cart-sum .fill{height:100%;border-radius:99px;background:var(--neon);transition:width .45s}
+.cart-sum.over .fill{background:var(--red)}
+.cart-list{padding:14px 20px 0;display:flex;flex-direction:column;gap:9px}
+.cart-item{
+  background:var(--card);border:1px solid var(--line);border-radius:var(--r-md);padding:11px;
+  display:flex;gap:12px;align-items:center;box-shadow:var(--shadow);
+}
+.cart-item .th{width:54px;height:54px;border-radius:11px;background:var(--card2);display:grid;place-items:center;font-size:26px;flex:none;overflow:hidden}
+.cart-item .th img{width:100%;height:100%;object-fit:cover}
+.cart-item .info{flex:1;min-width:0}
+.cart-item .info .n{font-size:13px;font-weight:600;line-height:1.35;color:var(--ink2);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:keep-all}
+.cart-item .info .s{font-size:15px;color:var(--neon-text);font-weight:800;margin-top:4px}
+.cart-item .del{flex:none;width:29px;height:29px;border-radius:9px;background:var(--card2);color:var(--ink3);font-size:12px;font-weight:800;display:grid;place-items:center}
+.cart-cta{padding:16px 20px 0;display:flex;flex-direction:column;gap:8px}
+.cart-cta .btn-all{height:50px;border-radius:14px;background:var(--neon);color:var(--on-accent);font-size:14.5px;font-weight:800;box-shadow:var(--glow)}
+.cart-cta .btn-clear{height:44px;border-radius:14px;background:var(--card);border:1px solid var(--line);color:var(--ink3);font-size:13px;font-weight:700}
+.fillup{margin-top:28px}
+.fillup .hd{padding:0 20px;font-size:15px;font-weight:800;margin-bottom:11px}
+.fillup .hd span{color:var(--gold-text)}
+.my-empty{padding:80px 40px;text-align:center}
+.my-empty .e{font-size:52px;margin-bottom:18px;opacity:.9}
+.my-empty h3{font-size:16.5px;font-weight:800;margin-bottom:9px}
+.my-empty p{font-size:13px;color:var(--ink3);line-height:1.6;word-break:keep-all}
+.my-empty p b{color:var(--neon-text)}
+
+/* ───── bottom sheet ───── */
+.dim{position:fixed;inset:0;background:var(--dim-bg);z-index:90;opacity:0;pointer-events:none;transition:opacity .25s;backdrop-filter:blur(2px)}
+.dim.on{opacity:1;pointer-events:auto}
+.sheet{
+  position:fixed;left:0;right:0;bottom:0;z-index:95;margin:0 auto;max-width:480px;
+  background:var(--bg);border-top:1px solid var(--line);border-radius:26px 26px 0 0;
+  transform:translateY(105%);transition:transform .32s cubic-bezier(.22,.9,.3,1);
+  max-height:88vh;overflow-y:auto;box-shadow:var(--shadow-lg);
+  padding-bottom:calc(20px + env(safe-area-inset-bottom));
+}
+.sheet.on{transform:none}
+.sheet .grab{width:38px;height:4px;border-radius:99px;background:var(--line);margin:10px auto 0}
+.sheet-hero{
+  margin:12px 20px 0;border-radius:var(--r-md);height:clamp(96px,23vh,158px);
+  background:var(--card2);display:grid;place-items:center;font-size:58px;overflow:hidden;position:relative;
+}
+.sheet-hero img{width:100%;height:100%;object-fit:cover}
+.sheet-close{
+  position:absolute;top:8px;right:8px;z-index:2;width:31px;height:31px;border-radius:50%;
+  background:var(--overlay);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  border:1px solid var(--overlay-line);
+  color:var(--overlay-ink);font-size:15px;font-weight:700;line-height:1;display:grid;place-items:center;transition:transform .15s;
+}
+.sheet-close:active{transform:scale(.9)}
+.sheet-body{padding:14px 22px 0}
+.sheet-body .brand{font-size:12px;font-weight:700;color:var(--ink3)}
+.sheet-body h2{font-size:16.5px;font-weight:700;line-height:1.35;margin-top:4px;word-break:keep-all;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.sheet-body .rev{font-size:11.5px;color:var(--ink3);font-weight:600;margin-top:6px}
+.sheet-body .rev .cdw{color:var(--gold-text);font-weight:800}
+.sheet-price{display:flex;align-items:baseline;gap:8px;margin-top:12px}
+.sheet-price .dc{font-size:19px;font-weight:800;color:var(--gold-text)}
+.sheet-price .won{font-size:34px;font-weight:800;color:var(--neon-text)}
+.sheet-price .orig{font-size:13px;color:var(--ink3);text-decoration:line-through;font-weight:500}
+.histbox{margin-top:15px;background:var(--card);border:1px solid var(--line);border-radius:var(--r-md);padding:13px 14px}
+.histbox h4{font-size:12px;font-weight:800;margin-bottom:9px;color:var(--ink2)}
+.hrow{display:flex;align-items:center;gap:9px;padding:5px 0;font-size:12.5px;font-weight:600}
+.hrow .ic{width:21px;height:21px;border-radius:6px;display:grid;place-items:center;font-size:10px;flex:none;background:var(--card2)}
+.hrow.low .ic{background:var(--neon);color:var(--on-accent);font-weight:800}
+.hrow .lbl{flex:1;color:var(--ink3);white-space:nowrap}
+.hrow.low .lbl{color:var(--ink);font-weight:700}
+.hrow .p{font-weight:700;color:var(--ink2)}
+.hrow .p.strike{text-decoration:line-through;color:var(--ink3)}
+.hrow.low .p{color:var(--neon-text);font-weight:800;font-size:14px}
+.saverow{display:flex;align-items:center;gap:9px;margin-top:6px;padding:9px 11px;background:var(--gold-soft);border-radius:10px;font-size:12px;font-weight:600;color:var(--ink2)}
+.saverow .dcpct{background:var(--gold);color:var(--on-gold);font-size:11.5px;font-weight:800;padding:2px 8px;border-radius:6px;flex:none}
+.saverow b{color:var(--gold-text);font-weight:800}
+.track-soon{margin-top:9px;background:var(--card2);color:var(--ink3);font-size:11.5px;font-weight:600;line-height:1.45;padding:9px 11px;border-radius:10px}
+.track-low{margin-top:6px;color:var(--neon-text);font-size:11.5px;font-weight:800}
+.sheet-cta{display:flex;gap:9px;padding:15px 20px 0}
+.btn-sub{flex:none;width:48px;height:50px;border-radius:14px;background:var(--card);border:1px solid var(--line);display:grid;place-items:center;font-size:18px;transition:transform .15s;box-shadow:var(--shadow)}
+.btn-sub.on{background:var(--neon);border-color:var(--neon);color:var(--on-accent)}
+.btn-sub:active{transform:scale(.92)}
+.btn-main{
+  flex:1;height:50px;border-radius:14px;background:var(--neon);color:var(--on-accent);
+  font-size:14.5px;font-weight:800;box-shadow:var(--glow);transition:transform .15s;
+}
+.btn-main:active{transform:scale(.97)}
+.sheet-note{font-size:10px;color:var(--ink3);text-align:center;margin-top:10px;padding:0 18px;line-height:1.5}
+
+/* ───── nav ───── */
+.nav{
+  position:fixed;bottom:0;left:0;right:0;z-index:80;margin:0 auto;max-width:480px;
+  background:var(--nav-bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-top:1px solid var(--line);
+  display:flex;padding:8px 0 calc(8px + env(safe-area-inset-bottom));
+}
+.nav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;font-weight:700;color:var(--ink3)}
+.nav button .i{font-size:20px;transition:transform .18s;filter:grayscale(1) opacity(.5)}
+.nav button.on{color:var(--neon-text)}
+.nav button.on .i{transform:translateY(-2px);filter:none}
+.nav .bdg{
+  position:absolute;transform:translate(14px,-2px);
+  background:var(--neon);color:var(--on-accent);font-size:9px;font-weight:800;
+  min-width:15px;height:15px;border-radius:99px;display:grid;place-items:center;padding:0 4px;
+}
+
+/* ───── toast ───── */
+.toast{
+  position:fixed;bottom:calc(160px + env(safe-area-inset-bottom));left:50%;transform:translate(-50%,16px);
+  background:var(--toast-bg);color:var(--toast-ink);font-size:13px;font-weight:700;
+  padding:12px 20px;border-radius:99px;z-index:120;opacity:0;pointer-events:none;
+  transition:.28s cubic-bezier(.22,.9,.3,1);white-space:nowrap;box-shadow:var(--shadow-lg);
+}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+
+.hide{display:none!important}
+
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="logo"><span class="mark">💵</span>만원의 특가</div>
+  <div class="hdr-r">
+    <span class="hdr-cnt num" id="hdrCnt">0건</span>
+    <button class="themebtn" id="themeBtn" aria-label="테마 전환">🌙</button>
+  </div>
+</header>
+
+<main id="pageHome">
+  <div class="searchbar">
+    <span class="si">🔍</span>
+    <input id="q" type="search" placeholder="상품·브랜드 검색 (예: 양말, 커피, 물티슈)" autocomplete="off">
+    <button id="qClear" class="qclear hide">✕</button>
+  </div>
+
+  <!-- 지폐 카드: 브랜드 + 오늘 요약 -->
+  <section class="note" id="note"></section>
+
+  <!-- 하루특가 (최상단 강조) -->
+  <section class="sec" id="secRush">
+    <div class="sec-hd">
+      <h3 id="rushTitle">⏰ 오늘 마감</h3>
+      <span class="soon num hide" id="rushSoon"></span>
+    </div>
+    <div class="rush-wrap" id="rushWrap"></div>
+  </section>
+
+  <section class="sec" style="margin-top:22px">
+    <div class="tiers" id="tiers"></div>
+    <div class="chips" id="chips"></div>
+    <div class="sortrow">
+      <button class="todaybtn hide" id="todayBtn" onclick="toggleToday()">⏰ 오늘 마감</button>
+      <span class="cnt" id="cntBox"><span id="secLabel">만원 이하</span> <b class="num" id="dealCnt">0</b>개</span>
+      <div class="sortsel" id="sortSel">
+        <button data-s="low" class="on">낮은가격순</button>
+        <button data-s="dc">할인율순</button>
+        <button data-s="end">마감임박순</button>
+        <button data-s="pop">인기순</button>
+      </div>
+    </div>
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <div class="foot-note">만원의 특가는 토스쇼핑 쉐어링크 제휴 활동을 포함하며, 이를 통해 일정액의 수수료를 제공받을 수 있습니다.<br>가격·재고는 판매처 사정에 따라 실시간으로 변동될 수 있습니다.</div>
+</main>
+
+<main id="pageCart" class="hide"></main>
+
+<!-- 만원 게이지 -->
+<div class="budget" id="budgetBar">
+  <div class="budget-in">
+    <div class="top">
+      <span class="l">담은 금액 <b class="num" id="bSum">0원</b></span>
+      <span class="r num" id="bCnt">0개 / 10,000원</span>
+    </div>
+    <div class="bar"><div class="fill" id="bFill" style="width:0%"></div></div>
+    <div class="msg"><span id="bMsg">만원까지 10,000원 남았어요</span><button class="go" onclick="goCart()">담은 목록</button></div>
+  </div>
+</div>
+
+<div class="dim" id="dim"></div>
+<div class="sheet" id="sheet"></div>
+
+<nav class="nav">
+  <button id="navHome" class="on"><span class="i">🏠</span>홈</button>
+  <button id="navCart"><span class="bdg hide num" id="cartBdg">0</span><span class="i">🧺</span>만원 담기</button>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ══════════ 만원의 특가 ══════════
+   딜 데이터는 toss-sync.cjs가 토스쇼핑 쉐어링크 API로 만든 public/catalog.json에서 로드한다.
+   동기화 단계에서 이미 1만원 이하만 담기지만, 앱에서도 BUDGET로 한 번 더 거른다
+   (가격이 오른 채로 남아 있는 항목이 화면에 뜨지 않도록). */
+const BUDGET=10000;                 // 만원 — 이 앱의 기준선
+const URGENT_MS=2*3600*1000;        // 2시간 이내 마감 = 임박(빨간 강조)
+const CATALOG=[];
+
+// 토스쇼핑 1차 카테고리(16개)를 13개로 묶은 것 — toss-sync.cjs의 TOSS_CAT_MAP과 짝이다.
+// 여기만 고치면 안 되고 sync 쪽 매핑도 같이 고쳐야 한다(딜의 cat 값이 sync에서 정해지므로).
+const CATS=["전체","식품","생활용품","주방","뷰티","패션","디지털가전","출산육아","반려동물","홈인테리어","스포츠레저","완구취미","문구도서","자동차"];
+const CAT_ICON={"전체":"🛒","식품":"🍎","생활용품":"🧽","주방":"🍳","뷰티":"💄","패션":"👕","디지털가전":"🔌","출산육아":"🍼","반려동물":"🐶","홈인테리어":"🛋️","스포츠레저":"⚽","완구취미":"🧸","문구도서":"📚","자동차":"🚗"};
+// 가격대는 서로 겹치지 않는 구간이다. "이하"로 쌓으면 5천원 딜이 5천·7천·1만 탭에 모두 잡혀
+// 탭마다 같은 상품이 중복되고, 탭별 건수를 더해도 전체와 맞지 않는다.
+// 구간 규칙: min 초과 ~ max 이하 (경계값은 아래쪽 구간에 속한다. 3,000원 → "3천원 이하")
+// label은 세그먼트 칸에 들어가는 짧은 표기(한 줄에 5칸이 들어가야 한다), full은 읽어주는 이름
+const TIERS=[
+  {k:"all", label:"전체",     full:"만원 이하",  min:0,    max:BUDGET},
+  {k:"t3",  label:"~3천",    full:"3천원 이하", min:0,    max:3000},
+  {k:"t35", label:"3~5천",   full:"3~5천원",   min:3000, max:5000},
+  {k:"t57", label:"5~7천",   full:"5~7천원",   min:5000, max:7000},
+  {k:"t7",  label:"7천~1만",  full:"7천~1만원",  min:7000, max:BUDGET},
+];
+const tierOf=k=>TIERS.find(t=>t.k===k)||TIERS[0];
+const inTier=(d,t)=>d.price>t.min&&d.price<=t.max;
+
+/* ── state ── */
+const LS="manwon_v1";
+let state=JSON.parse(localStorage.getItem(LS)||'{"cart":[]}');
+if(!Array.isArray(state.cart))state.cart=[];
+const save=()=>localStorage.setItem(LS,JSON.stringify(state));
+let curCat="전체",curSort="low",curQ="",curTier="all",onlyToday=false;
+
+const $=s=>document.querySelector(s);
+const won=n=>Number(n||0).toLocaleString("ko-KR");
+const fmtT=ms=>{
+  if(ms<=0)return"마감";
+  const h=Math.floor(ms/3600000),m=Math.floor(ms%3600000/60000),s=Math.floor(ms%60000/1000);
+  return h>0?`${h}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`:`${m}:${String(s).padStart(2,"0")}`;
+};
+function toast(msg){
+  const t=$("#toast");t.textContent=msg;t.classList.add("on");
+  clearTimeout(t._tm);t._tm=setTimeout(()=>t.classList.remove("on"),1800);
+}
+// 하루특가는 endAt이 지나면 특가가 끝난다. catalog.json은 동기화할 때만 갱신되므로
+// 만료된 딜이 남아 있을 수 있어, 화면에서는 클라이언트가 직접 걸러낸다.
+const isLive=d=>!d.endAt||new Date(d.endAt).getTime()>Date.now();
+const usable=d=>isLive(d)&&d.price<=BUDGET;
+const leftMs=d=>d.endAt?new Date(d.endAt).getTime()-Date.now():Infinity;
+const isToday=d=>!!d.endAt;
+
+// 카드 보조 정보: 리뷰 평점·수(쉐어링크 API가 내려줌), 없으면 절약액
+function reviewInfo(d){
+  if(d.reviews>0)return`⭐ ${d.score?d.score.toFixed(1)+" · ":""}리뷰 ${won(d.reviews)}개`;
+  const s=(d.orig||0)-(d.price||0);
+  return s>0?`💰 ${won(s)}원 아껴요`:`🛍️ 토스쇼핑`;
+}
+
+/* ── 지폐 카드(오늘 요약) ── */
+function renderNote(){
+  const live=CATALOG.filter(usable);
+  const cheapest=live.length?Math.min(...live.map(d=>d.price)):0;
+  const avg=live.length?Math.round(live.reduce((s,d)=>s+d.price,0)/live.length):0;
+  const todayN=live.filter(isToday).length;
+  $("#hdrCnt").textContent=`${won(live.length)}건`;
+  $("#note").innerHTML=`
+    <span class="ghost num">10000</span>
+    <div class="cap">MAN-WON DEALS · 만원 한 장으로</div>
+    <h2>1만원 넘는 건<br>아예 <em>안 보여드려요</em></h2>
+    <div class="stats">
+      <div class="st"><div class="k">오늘의 딜</div><div class="v num">${won(live.length)}<small>건</small></div></div>
+      <div class="st"><div class="k">최저가</div><div class="v num">${won(cheapest)}<small>원</small></div></div>
+      <div class="st"><div class="k">평균가</div><div class="v num">${won(avg)}<small>원</small></div></div>
+      ${todayN?`<div class="st"><div class="k">오늘 마감</div><div class="v num">${won(todayN)}<small>건</small></div></div>`:""}
+    </div>`;
+}
+
+/* ── 하루특가 (최상단 강조) ── */
+function renderRush(){
+  const today=CATALOG.filter(d=>isToday(d)&&usable(d)).sort((a,b)=>a.endAt.localeCompare(b.endAt));
+  const rush=(today.length?today:CATALOG.filter(usable).sort((a,b)=>a.price-b.price)).slice(0,10);
+  $("#secRush").classList.toggle("hide",!rush.length);
+  $("#rushTitle").textContent=today.length?"⏰ 오늘 마감":"🪙 가장 싼 딜";
+  const soon=$("#rushSoon");
+  if(today.length){
+    soon.classList.remove("hide");
+    soon.innerHTML=`가장 빨리 끝나요 <span data-end="${today[0].endAt}">--:--</span>`;
+  }else soon.classList.add("hide");
+
+  $("#rushWrap").innerHTML=rush.map(d=>{
+    const urgent=isToday(d)&&leftMs(d)<URGENT_MS;
+    return`
+    <div class="rush ${urgent?"urgent":""}" onclick="openSheet('${d.id}')">
+      <div class="thumb">
+        ${d.dc>0?`<span class="dcbadge num">${d.dc}%</span>`:""}
+        ${d.img?`<img src="${d.img}" alt="" loading="lazy">`:d.emoji}
+        ${d.endAt?`<div class="cd"><span class="lb">${urgent?"마감 임박":"남은 시간"}</span><span class="tm num" data-end="${d.endAt}">--:--</span></div>`:""}
+      </div>
+      <div class="name">${d.name}</div>
+      <div class="pr"><span class="won num">${won(d.price)}</span><span class="unit">원</span>${d.dc>0?`<span class="orig num">${won(d.orig)}원</span>`:""}</div>
+    </div>`;}).join("");
+  tickTimers();
+}
+
+/* ── 필터 UI ── */
+function renderTiers(){
+  const base=CATALOG.filter(usable);
+  const todayN=base.filter(isToday).length;
+  // 고른 가격대가 (동기화·마감으로) 0건이 되면 비활성 탭에 갇히므로 전체로 되돌린다
+  if(base.length&&!base.some(d=>inTier(d,tierOf(curTier))))curTier="all";
+  $("#tiers").innerHTML=TIERS.map(t=>{
+    const n=base.filter(d=>inTier(d,t)).length;
+    // 0건이면 비활성(.empty). 그날 저가 딜이 없으면 "~3천" 칸이 빈 화면으로 이어진다.
+    return`<button class="tier ${t.k===curTier?"on":""} ${n?"":"empty"}" onclick="setTier('${t.k}')" aria-label="${t.full}">
+      <span class="lb">${t.label}</span><span class="n num">${won(n)}</span></button>`;
+  }).join("");
+  // 오늘 마감은 가격대와 다른 축이라 정렬 줄에 둔다
+  const tb=$("#todayBtn");
+  tb.classList.toggle("hide",!todayN);
+  tb.classList.toggle("on",onlyToday);
+  tb.innerHTML=`⏰ 오늘 마감 <span class="num">${todayN}</span>`;
+}
+function renderChips(){
+  const base=CATALOG.filter(usable);
+  const n=c=>c==="전체"?base.length:base.filter(d=>d.cat===c).length;
+  // 고른 카테고리가 (동기화·마감으로) 0건이 되면 비활성 칩에 갇히므로 전체로 되돌린다
+  if(base.length&&!n(curCat))curCat="전체";
+  $("#chips").innerHTML=CATS.map(c=>
+    `<button class="chip ${c===curCat?"on":""} ${n(c)?"":"empty"}" onclick="setCat('${c}')"><span class="ci">${CAT_ICON[c]||""}</span>${c}</button>`
+  ).join("");
+}
+function setTier(k){curTier=k;renderTiers();renderGrid();}
+function toggleToday(){onlyToday=!onlyToday;renderTiers();renderGrid();}
+function setCat(c){curCat=c;renderChips();renderGrid();}
+function setSort(s){
+  curSort=s;
+  document.querySelectorAll("#sortSel button").forEach(b=>b.classList.toggle("on",b.dataset.s===s));
+  renderGrid();
+}
+document.querySelectorAll("#sortSel button").forEach(b=>b.onclick=()=>setSort(b.dataset.s));
+
+/* ── 검색 ── */
+function applySearch(q){
+  curQ=q.trim();
+  const searching=curQ.length>0;
+  $("#note").classList.toggle("hide",searching);
+  if(searching)$("#secRush").classList.add("hide"); else renderRush();
+  $("#chips").classList.toggle("hide",searching);
+  $("#qClear").classList.toggle("hide",!searching);
+  $("#secLabel").textContent=searching?`'${curQ}' 검색결과`:"만원 이하";
+  renderGrid();
+}
+$("#q").addEventListener("input",e=>applySearch(e.target.value));
+$("#qClear").onclick=()=>{$("#q").value="";applySearch("");$("#q").focus();};
+
+/* ── 그리드 ── */
+
+function dealCard(d,i){
+  const added=state.cart.includes(d.id);
+  const lo=lowestInfo(d);
+  const urgent=isToday(d)&&leftMs(d)<URGENT_MS;
+  return`
+  <div class="deal ${added?"incart":""}" style="animation-delay:${(i||0)*0.025}s" onclick="openSheet('${d.id}')">
+    <div class="thumb">
+      ${d.img?`<img src="${d.img}" alt="" loading="lazy">`:d.emoji}
+      ${d.price<=1000?`<span class="badge cheap">천원 이하</span>`:d.dc>0?`<span class="badge num">${d.dc}%</span>`:""}
+      ${d.endAt?`<span class="tbadge num" style="${urgent?"color:var(--red);border-color:rgba(255,90,95,.4)":""}" data-end="${d.endAt}">--:--</span>`:""}
+    </div>
+    <button class="add ${added?"on":""}" onclick="event.stopPropagation();toggleCart('${d.id}')">${added?"✓":"+"}</button>
+    <div class="body">
+      <div class="brand">${d.brand}</div>
+      <div class="name">${d.name}</div>
+      <div class="pricebox">
+        ${d.dc>0?`<span class="dc num">${d.dc}%</span>`:""}<span class="won num">${won(d.price)}</span><span class="unit">원</span>
+        ${d.dc>0?`<span class="orig num">${won(d.orig)}원</span>`:""}
+      </div>
+      <div class="meta">${metaChips(d,lo)}</div>
+    </div>
+  </div>`;
+}
+
+// 카드 하단 보조 정보 — 회색 한 줄 문장 대신 칩으로 쪼개서 별점·리뷰·최저가를 구분한다
+function metaChips(d,lo){
+  const out=[];
+  if(d.score)out.push(`<span class="m">⭐ ${d.score.toFixed(1)}</span>`);
+  if(d.reviews>0)out.push(`<span class="m num">리뷰 ${won(d.reviews)}</span>`);
+  if(lo)out.push(`<span class="m low">${lo}</span>`);
+  if(!out.length){
+    const s=(d.orig||0)-(d.price||0);
+    out.push(s>0?`<span class="m save num">${won(s)}원 아껴요</span>`:`<span class="m">🛍️ 토스쇼핑</span>`);
+  }
+  return out.join("");
+}
+
+function renderGrid(){
+  let list=CATALOG.filter(usable);
+  if(curQ){
+    const q=curQ.toLowerCase();
+    list=list.filter(d=>((d.name||"")+" "+(d.brand||"")+" "+(d.cat||"")).toLowerCase().includes(q));
+  }else{
+    list=list.filter(d=>curCat==="전체"||d.cat===curCat);
+  }
+  list=list.filter(d=>inTier(d,tierOf(curTier)));
+  if(onlyToday)list=list.filter(isToday);
+  if(curSort==="dc")list.sort((a,b)=>b.dc-a.dc||a.price-b.price);
+  else if(curSort==="pop")list.sort((a,b)=>(b.reviews||0)-(a.reviews||0));
+  else if(curSort==="end")list.sort((a,b)=>leftMs(a)-leftMs(b)||a.price-b.price); // 마감 없는 딜은 뒤로
+  else list.sort((a,b)=>a.price-b.price); // 기본: 낮은가격순
+  $("#dealCnt").textContent=won(list.length);
+  if(!curQ)$("#secLabel").textContent=(onlyToday?"오늘 마감 ":"")+(curCat==="전체"?"만원 이하":curCat);
+  $("#cntBox").classList.remove("hide");   // 지금 걸려 있는 조건의 건수는 항상 보여준다
+  if(!list.length){
+    // 파일을 직접 열면(file://) 브라우저가 보안상 catalog.json을 못 읽어 화면이 통째로 비어 보인다.
+    // "딜이 없다"고만 하면 원인을 못 찾으니 여는 방법을 알려준다.
+    $("#grid").innerHTML=CATALOG.length
+      ?`<div class="no-result">조건에 맞는 만원 이하 딜이 없어요.<br>가격대나 카테고리를 바꿔보세요.</div>`
+      :location.protocol==="file:"
+      ?`<div class="no-result">파일을 직접 열면 브라우저가 딜 데이터를 못 읽어요.<br>폴더 안의 <code>미리보기.command</code> 를 두 번 누르면<br>서버로 제대로 열립니다.</div>`
+      :`<div class="no-result">아직 등록된 딜이 없어요.<br><code>npm run sync</code> 로 토스쇼핑 상품을 받아오세요.</div>`;
+    return;
+  }
+  $("#grid").innerHTML=list.map(dealCard).join("");
+}
+
+/* ── 만원 담기 ── */
+function cartDeals(){return state.cart.map(id=>CATALOG.find(d=>d.id===id)).filter(Boolean);}
+function cartSum(){return cartDeals().reduce((s,d)=>s+d.price,0);}
+
+function toggleCart(id){
+  const i=state.cart.indexOf(id);
+  if(i>=0){state.cart.splice(i,1);}
+  else{
+    state.cart.push(id);
+    const left=BUDGET-cartSum();
+    toast(left>=0?`담았어요! 만원까지 ${won(left)}원 남았어요`:`만원을 ${won(-left)}원 넘었어요`);
+  }
+  save();updateBudget();renderGrid();
+  if(!$("#pageCart").classList.contains("hide"))renderCart();
+}
+
+function updateBudget(){
+  const items=cartDeals(),sum=cartSum(),left=BUDGET-sum;
+  const bdg=$("#cartBdg");
+  bdg.textContent=items.length;bdg.classList.toggle("hide",!items.length);
+  $("#budgetBar").classList.toggle("on",items.length>0&&!$("#pageHome").classList.contains("hide"));
+  $("#bSum").textContent=won(sum)+"원";
+  $("#bCnt").textContent=`${items.length}개 / ${won(BUDGET)}원`;
+  const fill=$("#bFill");
+  fill.style.width=Math.min(100,sum/BUDGET*100)+"%";
+  fill.classList.toggle("over",left<0);
+  $("#bMsg").textContent=left>=0?`만원까지 ${won(left)}원 남았어요`:`만원을 ${won(-left)}원 넘었어요`;
+}
+
+/* 남은 예산으로 살 수 있는 추천 — 만원 채우기의 핵심 */
+function fillUpPicks(){
+  const left=BUDGET-cartSum();
+  if(left<=0)return[];
+  return CATALOG.filter(d=>usable(d)&&d.price<=left&&!state.cart.includes(d.id))
+    .sort((a,b)=>b.price-a.price)   // 남은 돈을 가장 알차게 쓰는 순
+    .slice(0,4);
+}
+
+function renderCart(){
+  const items=cartDeals(),sum=cartSum(),left=BUDGET-sum;
+  const el=$("#pageCart");
+  if(!items.length){
+    el.innerHTML=`<div class="my-empty">
+      <div class="e">🧺</div><h3>아직 담은 상품이 없어요</h3>
+      <p>홈에서 <b>+</b> 버튼을 눌러 담아보세요.<br>1만원을 넘지 않게 채우는 재미가 있어요.</p>
+    </div>`;return;
+  }
+  const picks=fillUpPicks();
+  el.innerHTML=`
+    <div class="cart-sum ${left<0?"over":""}">
+      <div class="cap">${left>=0?"담은 금액":"1만원 초과"}</div>
+      <div class="v num">${won(sum)}원</div>
+      <div class="sub">${left>=0?`만원까지 <b>${won(left)}원</b> 남았어요 · ${items.length}개`:`<b>${won(-left)}원</b> 넘었어요 · ${items.length}개`}</div>
+      <div class="bar"><div class="fill" style="width:${Math.min(100,sum/BUDGET*100)}%"></div></div>
+    </div>
+    <div class="cart-list">
+      ${items.map(d=>`
+        <div class="cart-item" onclick="openSheet('${d.id}')">
+          <div class="th">${d.img?`<img src="${d.img}" alt="">`:d.emoji}</div>
+          <div class="info"><div class="n">${d.name}</div><div class="s num">${won(d.price)}원${d.dc>0?` <span style="color:var(--ink3);font-weight:600">·</span> <span style="color:var(--gold)">${d.dc}%</span>`:""}</div></div>
+          <button class="del" onclick="event.stopPropagation();toggleCart('${d.id}')">✕</button>
+        </div>`).join("")}
+    </div>
+    <div class="cart-cta">
+      <button class="btn-all" onclick="openCartLinks()">토스쇼핑에서 하나씩 담으러 가기 →</button>
+      <button class="btn-clear" onclick="clearCart()">전체 비우기</button>
+    </div>
+    ${picks.length?`
+    <div class="fillup">
+      <div class="hd">남은 <span class="num">${won(left)}원</span>으로 채우기</div>
+      <div class="grid">${picks.map(dealCard).join("")}</div>
+    </div>`:""}
+    <div class="foot-note">토스쇼핑은 상품마다 결제가 나뉘어요. 담은 목록은 이 앱에만 저장되고, 구매는 상품별 링크에서 진행돼요.</div>`;
+  tickTimers();
+}
+
+function clearCart(){
+  if(!state.cart.length)return;
+  state.cart=[];save();updateBudget();renderCart();renderGrid();toast("담은 목록을 비웠어요");
+}
+function openCartLinks(){
+  const items=cartDeals().filter(d=>d.url);
+  if(!items.length){toast("구매 링크가 준비된 상품이 없어요");return;}
+  toast(`첫 번째 상품부터 열게요 (${items.length}개)`);
+  openExternal(items[0].url);
+}
+function goCart(){$("#navCart").click();}
+
+/* ── 상세 시트 ── */
+let curDeal=null;
+function openSheet(id){
+  const d=CATALOG.find(x=>x.id===id);if(!d)return;
+  curDeal=d;
+  const added=state.cart.includes(d.id);
+  const dcAmt=won(d.orig-d.price);
+  $("#sheet").innerHTML=`
+    <div class="grab"></div>
+    <div class="sheet-hero">${d.img?`<img src="${d.img}" alt="">`:d.emoji}<button class="sheet-close" aria-label="닫기" onclick="closeSheet()">✕</button></div>
+    <div class="sheet-body">
+      <div class="brand">${d.brand} · ${d.cat}</div>
+      <h2>${d.name}</h2>
+      <div class="rev">${reviewInfo(d)}${d.endAt?` · ⏰ <span class="cdw num" data-end="${d.endAt}">--:--</span> 후 종료`:""}</div>
+      <div class="sheet-price">${d.dc>0?`<span class="dc num">${d.dc}%</span>`:""}<span class="won num">${won(d.price)}원</span>${d.dc>0?`<span class="orig num">${won(d.orig)}원</span>`:""}</div>
+      <div class="histbox">
+        <h4>가격 정보</h4>
+        ${d.dc>0?`<div class="hrow"><span class="ic">🏬</span><span class="lbl">정가</span><span class="p strike num">${won(d.orig)}원</span></div>`:""}
+        <div class="hrow low"><span class="ic">✓</span><span class="lbl">현재 판매가</span><span class="p num">${won(d.price)}원</span></div>
+        ${d.dc>0?`<div class="saverow"><span class="dcpct num">${d.dc}%</span>정가보다 <b class="num">${dcAmt}원</b> 저렴해요</div>`:""}
+        <div class="hrow"><span class="ic">💵</span><span class="lbl">만원으로 몇 개?</span><span class="p num">${Math.floor(BUDGET/d.price)}개 (남는 돈 ${won(BUDGET%d.price)}원)</span></div>
+        ${priceTrackHtml(d)}
+      </div>
+    </div>
+    <div class="sheet-cta">
+      <button class="btn-sub ${added?"on":""}" onclick="toggleCart('${d.id}');openSheet('${d.id}')">${added?"✓":"🧺"}</button>
+      <button class="btn-sub" onclick="shareDeal()">📤</button>
+      ${d.url
+        ?`<button class="btn-main" onclick="goReal()">토스쇼핑에서 구매하기 →</button>`
+        :`<button class="btn-main" disabled style="opacity:.45">구매 링크 준비 중</button>`}
+    </div>
+    <div class="sheet-note">만원의 특가는 토스쇼핑 쉐어링크 제휴 활동의 일환으로, 구매 발생 시 일정액의 수수료를 제공받을 수 있어요.<br>표시 가격은 마지막 확인 시점(${d.lastChecked||"-"}) 기준이며 실시간으로 변동될 수 있어요. 결제·배송·교환/반품은 토스쇼핑에서 진행돼요.</div>`;
+  $("#dim").classList.add("on");
+  $("#sheet").classList.add("on");
+  tickTimers();
+}
+function closeSheet(){$("#dim").classList.remove("on");$("#sheet").classList.remove("on");curDeal=null;}
+$("#dim").onclick=closeSheet;
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&curDeal)closeSheet();});
+
+/* ── 외부 링크 열기 ──
+   토스 앱(앱인토스 WebView)에서는 window.open이 동작하지 않아 SDK의 openURL을 써야 한다.
+   SDK import는 toss-bridge.js가 맡고, 성공하면 window.__tossOpenURL에 실어준다. */
+function openExternal(url){
+  if(!url)return;
+  if(typeof window.__tossOpenURL==="function"){window.__tossOpenURL(url);return;}
+  window.open(url,"_blank");
+}
+function goReal(){
+  if(!curDeal||!curDeal.url)return;
+  const url=curDeal.url;
+  toast("토스쇼핑으로 이동해요 →");
+  setTimeout(()=>openExternal(url),400);
+}
+function shareDeal(){
+  if(!curDeal)return;
+  const link=curDeal.url||location.href;
+  const txt=`[만원의 특가] ${curDeal.name} — ${won(curDeal.price)}원${curDeal.dc>0?` (${curDeal.dc}% 할인)`:""}!`;
+  if(navigator.share){navigator.share({title:"만원의 특가",text:txt,url:link}).catch(()=>{});}
+  else{navigator.clipboard?.writeText(`${txt}\n${link}`);toast("공유 링크를 복사했어요");}
+}
+
+/* ── nav ── */
+$("#navHome").onclick=()=>{
+  $("#pageHome").classList.remove("hide");$("#pageCart").classList.add("hide");
+  $("#navHome").classList.add("on");$("#navCart").classList.remove("on");
+  updateBudget();window.scrollTo({top:0});
+};
+$("#navCart").onclick=()=>{
+  renderCart();
+  $("#pageCart").classList.remove("hide");$("#pageHome").classList.add("hide");
+  $("#navCart").classList.add("on");$("#navHome").classList.remove("on");
+  $("#budgetBar").classList.remove("on");   // 장바구니 화면에선 요약 카드가 대신한다
+  window.scrollTo({top:0});
+};
+
+/* ── 하루특가 카운트다운 ── */
+let ticking=false; // renderRush()가 tickTimers()를 다시 부르므로 재진입 방지
+function tickTimers(){
+  if(ticking)return;
+  const now=Date.now();
+  let justExpired=false;
+  document.querySelectorAll("[data-end]").forEach(el=>{
+    const left=new Date(el.dataset.end).getTime()-now;
+    el.textContent=fmtT(left);
+    if(left<=0&&!el.classList.contains("over")){el.classList.add("over");justExpired=true;}
+  });
+  // 특가가 끝나는 순간 화면에서 바로 내린다
+  if(justExpired){
+    ticking=true;
+    try{
+      renderNote();renderRush();renderTiers();renderChips();renderGrid();
+      if(curDeal&&!isLive(curDeal))closeSheet();
+    }finally{ticking=false;}
+  }
+}
+setInterval(tickTimers,1000);
+
+/* ── 가격 기록(price-history.json) 기반 최저가 ── */
+let PRICE_HISTORY={}; // { 딜id: [{d:"2026-08-11", p:4900}, ...] } — toss-sync.cjs가 매 실행마다 누적
+function histOf(d){
+  const h=(d&&PRICE_HISTORY[d.id])||[];
+  const byDay={}; h.forEach(x=>{byDay[x.d]=x.p;});
+  return Object.entries(byDay).map(([dt,p])=>({d:dt,p})).sort((a,b)=>a.d<b.d?-1:1);
+}
+function lowestInfo(d){
+  const h=histOf(d); if(h.length<2)return "";
+  const min=Math.min(...h.map(x=>x.p));
+  return d.price<=min?"역대 최저가":"";
+}
+function priceTrackHtml(d){
+  const h=histOf(d);
+  if(h.length<2)return`<div class="track-soon">이 상품 가격을 매일 기록하고 있어요. 며칠 뒤 최저가 추이를 보여드릴게요.</div>`;
+  const min=Math.min(...h.map(x=>x.p)),days=h.length,isLow=d.price<=min;
+  return`<div class="hrow"><span class="ic">📉</span><span class="lbl">최근 ${days}일 최저가</span><span class="p num">${won(min)}원</span></div>
+    ${isLow?`<div class="track-low">✅ 기록상 최저가예요 (최근 ${days}일 기준)</div>`:``}`;
+}
+
+// 데이터 파일은 public/ 에 있다.
+// - vite dev / ait 빌드 산출물(dist): public/ 내용이 루트로 올라와 "catalog.json"으로 잡힌다
+// - 프로젝트 루트를 그냥 정적 서버로 열었을 때: "public/catalog.json"으로 잡힌다
+//
+// 배포된 앱은 번들에 박힌 파일 대신 REMOTE_BASE(GitHub Pages)를 먼저 본다.
+// 배치(toss-sync.cjs)가 하루 두 번 여기로 푸시하므로 **앱 재배포 없이 딜이 갱신된다**.
+// 로컬(localhost·file://)에서는 방금 동기화한 public/ 파일을 봐야 하므로 원격을 건너뛴다.
+const IS_LOCAL=/^(localhost|127\.0\.0\.1)$/.test(location.hostname)||location.protocol==="file:";
+const REMOTE_BASE="https://pnu10.github.io/manwon-teukga/public/";
+async function fetchData(file){
+  const paths=IS_LOCAL?[file,"public/"+file]:[REMOTE_BASE+file,file,"public/"+file];
+  for(const p of paths){
+    const r=await fetch(p,{cache:"no-store"}).catch(()=>null);
+    if(r&&r.ok)return r;
+  }
+  return null;
+}
+async function loadPriceHistory(){
+  try{
+    const r=await fetchData("price-history.json");
+    if(r){PRICE_HISTORY=await r.json()||{};renderGrid();}
+  }catch(e){/* 없으면 최저가 표시만 빠지고 앱은 정상 */}
+}
+
+/* ── catalog.json 로드 ── */
+async function loadCatalog(){
+  try{
+    const r=await fetchData("catalog.json");
+    if(!r)return;
+    const ext=await r.json();
+    if(!Array.isArray(ext))return;
+    ext.forEach(d=>{
+      if(!d||!d.name||!d.price)return;
+      if(d.price>BUDGET)return;                 // 만원 초과는 이 앱에 들이지 않는다
+      if(CATALOG.some(x=>x.id===d.id))return;
+      CATALOG.push(d);
+    });
+    renderNote();renderRush();renderTiers();renderChips();renderGrid();updateBudget();
+  }catch(e){/* catalog.json 없으면 빈 화면 안내 */}
+}
+
+/* ── 테마 (기본 라이트, 헤더 버튼으로 다크 전환) ── */
+function applyTheme(dark){
+  document.documentElement.dataset.theme=dark?"dark":"";
+  $("#themeBtn").textContent=dark?"☀️":"🌙";
+  // 상단 상태바 색도 같이 맞춘다(토스 앱 WebView·모바일 브라우저)
+  $("#themeColor").setAttribute("content",dark?"#101314":"#F4F6F5");
+  try{localStorage.setItem("manwon_theme",dark?"dark":"light");}catch(e){}
+}
+$("#themeBtn").onclick=()=>applyTheme(document.documentElement.dataset.theme!=="dark");
+applyTheme(document.documentElement.dataset.theme==="dark"); // head 스크립트가 정한 값에 버튼·메타 맞추기
+
+/* ── init ── */
+renderNote();renderRush();renderTiers();renderChips();renderGrid();updateBudget();
+loadCatalog().then(loadPriceHistory);
+</script>
+<!-- 앱인토스 SDK 브리지 (토스 앱 안에서만 로드 성공, 밖에서는 조용히 무시됨) -->
+<script type="module" src="./toss-bridge.js"></script>
+</body>
+</html>

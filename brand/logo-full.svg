@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#00D477"/>
+      <stop offset="0.55" stop-color="#00B368"/>
+      <stop offset="1" stop-color="#007E48"/>
+    </linearGradient>
+    <linearGradient id="note" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#EFF7F2"/>
+    </linearGradient>
+    <pattern id="guilloche" width="28" height="28" patternUnits="userSpaceOnUse" patternTransform="rotate(-25)">
+      <rect width="2" height="28" fill="#FFFFFF" opacity="0.07"/>
+    </pattern>
+    <filter id="drop" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="16" stdDeviation="20" flood-color="#00301B" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+
+  <!-- 모서리 라운드 없이 꽉 채운다 (투명·흰 여백 없음) -->
+  <rect x="-2" y="-2" width="604" height="604" fill="url(#bg)"/>
+  <rect x="-2" y="-2" width="604" height="604" fill="url(#guilloche)"/>
+
+  <!-- 액면가 워터마크 -->
+  <text x="596" y="586" text-anchor="end"
+        font-family="Pretendard, -apple-system, 'Apple SD Gothic Neo', Helvetica, sans-serif"
+        font-size="168" font-weight="800" fill="#FFFFFF" opacity="0.08" letter-spacing="-8">10000</text>
+
+  <!-- 지폐 — 캔버스를 채우도록 키움 -->
+  <g transform="rotate(-7 300 296)" filter="url(#drop)">
+    <rect x="66" y="150" width="468" height="292" rx="38" fill="url(#note)"/>
+    <rect x="94" y="178" width="412" height="236" rx="26" fill="none" stroke="#00B368" stroke-opacity="0.26" stroke-width="4"/>
+    <circle cx="300" cy="296" r="96" fill="none" stroke="#00B368" stroke-opacity="0.16" stroke-width="4"/>
+    <text x="300" y="356"
+          font-family="Pretendard, -apple-system, 'Apple SD Gothic Neo', Helvetica, sans-serif"
+          font-size="180" font-weight="800" fill="#00A85F" text-anchor="middle" letter-spacing="-6">₩</text>
+    <text x="124" y="228"
+          font-family="Pretendard, -apple-system, 'Apple SD Gothic Neo', Helvetica, sans-serif"
+          font-size="40" font-weight="800" fill="#00A85F" opacity="0.85" letter-spacing="-1.5">10,000</text>
+    <text x="476" y="392" text-anchor="end"
+          font-family="Pretendard, -apple-system, 'Apple SD Gothic Neo', Helvetica, sans-serif"
+          font-size="40" font-weight="800" fill="#00A85F" opacity="0.85" letter-spacing="-1.5">이하만</text>
+  </g>
+</svg>
